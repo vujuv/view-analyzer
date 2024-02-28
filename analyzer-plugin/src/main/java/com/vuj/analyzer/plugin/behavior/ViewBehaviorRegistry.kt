@@ -15,4 +15,8 @@ class ViewBehaviorRegistry {
     fun get(methodName: String): ViewBehaviorHook? {
         return hookMap[methodName]
     }
+
+    fun getMethodSet(): Set<String> {
+        return hookMap.keys
+    }
 }

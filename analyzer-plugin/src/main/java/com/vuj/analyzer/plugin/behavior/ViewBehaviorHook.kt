@@ -8,4 +8,5 @@ import org.objectweb.asm.MethodVisitor
 interface ViewBehaviorHook {
     fun onBehaviorBegin(name: String, methodVisitor: MethodVisitor)
     fun onBehaviorEnd(name: String, methodVisitor: MethodVisitor)
+    fun onBehaviorGenerate(name: String)
 }
