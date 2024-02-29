@@ -6,9 +6,9 @@ plugins {
 }
 
 viewAnalyzer {
-    views = setOf("com.vuj.analyzer.CustomLinearLayout", "com.vuj.analyzer.CustomTextView",
+    views = setOf("com.vuj.analyzer.CustomLinearLayout",
         "androidx.recyclerview.widget.RecyclerView")
-    logTag = "viewAnalyzer"
+    logTag = "vuj"
     viewTag = "viewAnalyzer"
     behaviors = setOf(ViewBehavior.TOUCH_EVENT)
 }

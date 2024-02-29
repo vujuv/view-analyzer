@@ -18,7 +18,7 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
         RecyclerView rv = this.findViewById(R.id.rv);
         List<String> list = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 100; i++) {
             list.add(String.valueOf(i));
         }
         rv.setAdapter(new CustomAdapter(list));

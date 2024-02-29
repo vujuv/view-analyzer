@@ -7,15 +7,9 @@
     tools:context=".MainActivity"
     android:tag="viewAnalyzer">
 
-    <com.vuj.analyzer.CustomTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="123456789"
-        android:tag="viewAnalyzer"/>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:tag="viewAnalyzer"/>
+        android:tag="viewAnalyzer" />
 </com.vuj.analyzer.CustomLinearLayout>

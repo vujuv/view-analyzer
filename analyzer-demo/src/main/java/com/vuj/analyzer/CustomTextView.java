@@ -13,9 +13,4 @@ public class CustomTextView extends androidx.appcompat.widget.AppCompatTextView 
     public CustomTextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
-    }
 }
