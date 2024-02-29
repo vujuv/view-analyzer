@@ -1,7 +1,7 @@
 package com.vuj.analyzer.plugin.behavior
 
 /**
- * view行为注册器，用于view行为和相应行为钩子之间的绑定
+ * view行为注册器，用于view行为与相应行为钩子之间的绑定
  */
 class ViewBehaviorRegistry {
     private val hookMap: MutableMap<String, ViewBehaviorHook> = HashMap()

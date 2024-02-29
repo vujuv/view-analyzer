@@ -3,6 +3,7 @@ package com.vuj.analyzer.plugin
 import com.vuj.analyzer.plugin.behavior.ViewBehaviorRegistry
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.commons.AdviceAdapter
+
 class ViewAnalyzerAdviceAdapter(api: Int,
                                 methodVisitor: MethodVisitor,
                                 access: Int,

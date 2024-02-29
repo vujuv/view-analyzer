@@ -8,9 +8,6 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
 
-/**
- * view触摸事件行为实现
- */
 class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
                              private val classContext: ClassContext,
                              private val classVisitor: ClassVisitor
@@ -109,6 +106,9 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
             return
         }
 
+        val currentClassName = classContext.currentClassData.className
+        val parentClassName = classContext.currentClassData.superClasses[0]
+
         val methodVisitor = classVisitor.visitMethod(
             Opcodes.ACC_PUBLIC,
             name,
@@ -148,7 +148,7 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
             "()V",
             false
         )
-        methodVisitor.visitLdcInsn("${getSimpleClassName(classContext.currentClassData.className)}-${name}-")
+        methodVisitor.visitLdcInsn("${getSimpleClassName(currentClassName)}-${name}-")
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKEVIRTUAL,
             "java/lang/StringBuilder",
@@ -199,9 +199,10 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
         methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 1)
+        // 调用父类的方法
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKESPECIAL,
-            "android/view/View",
+            transDescriptorClassName(parentClassName),
             name,
             "(Landroid/view/MotionEvent;)Z",
             false
@@ -211,7 +212,7 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
         methodVisitor.visitLabel(label2)
         methodVisitor.visitLocalVariable(
             "this",
-            "L${classContext.currentClassData.className};",
+            "L${transDescriptorClassName(currentClassName)};",
             null,
             label0,
             label2,
@@ -231,5 +232,12 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
 
     private fun getSimpleClassName(fullClassName: String): String {
         return fullClassName.substringAfterLast('.')
+    }
+
+    /**
+     * 转换为描述符类名形式，如：android.view.MotionEvent -> android/view/MotionEvent
+     */
+    private fun transDescriptorClassName(className: String): String {
+        return className.replace('.', '/')
     }
 }
