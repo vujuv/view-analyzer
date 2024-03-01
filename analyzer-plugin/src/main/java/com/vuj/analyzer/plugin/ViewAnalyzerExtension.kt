@@ -4,7 +4,7 @@ import com.vuj.analyzer.plugin.behavior.ViewBehavior
 
 open class ViewAnalyzerExtension {
     /**
-     * 待分析行为的view全限定类名集合
+     * view的全限定类名集合
      */
     var views: Set<String> = emptySet()
 
@@ -14,13 +14,14 @@ open class ViewAnalyzerExtension {
     var logTag: String? = null
 
     /**
-     * 待分析行为的view标识，可以通过View.setTag方法或者在xml中通过android:tag属性进行设置
-     * 如果该字段为空，则表示所有在views集合中的view都打印日志
+     * view标识，用以在运行时判断该view对象是否需要打印日志（同一个view类可能会对应多个view对象）
+     * 可以利用view的setTag方法或者在xml中通过android:tag属性进行设置
+     * 如果该配置项为空，则表示所有属于views集合中的view对象都打印日志
      */
     var viewTag: String? = null
 
     /**
-     * 待分析的view行为集合
+     * view行为集合
      */
     var behaviors: Set<ViewBehavior> = emptySet()
 }
