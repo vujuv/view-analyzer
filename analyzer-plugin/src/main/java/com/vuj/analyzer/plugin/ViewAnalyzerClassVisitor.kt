@@ -7,6 +7,7 @@ import com.vuj.analyzer.plugin.behavior.ViewBehaviorRegistry
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.commons.AdviceAdapter
 
 class ViewAnalyzerClassVisitor(
     parameters: ViewAnalyzerParameters,
@@ -39,7 +40,19 @@ class ViewAnalyzerClassVisitor(
             generateMethodSet.remove(name)
         }
         val methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
-        return ViewAnalyzerAdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, descriptor, registry)
+        return object : AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, descriptor) {
+            override fun onMethodEnter() {
+                name?.let {
+                    registry.get(it)?.onMethodEnter(this)
+                }
+            }
+
+            override fun onMethodExit(opcode: Int) {
+                name?.let {
+                    registry.get(it)?.onMethodExit(opcode, this)
+                }
+            }
+        }
     }
 
     override fun visitEnd() {
@@ -49,7 +62,7 @@ class ViewAnalyzerClassVisitor(
         }
         // 根据待生成方法集合中的内容生成相应的方法
         generateMethodSet.forEach {
-            registry.get(it)?.onBehaviorGenerate(it)
+            registry.get(it)?.onMethodGenerate(it)
         }
     }
 }

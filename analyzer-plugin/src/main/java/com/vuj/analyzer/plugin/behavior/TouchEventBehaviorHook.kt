@@ -4,102 +4,120 @@ import com.android.build.api.instrumentation.ClassContext
 import com.vuj.analyzer.plugin.ViewAnalyzerParameters
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Label
-import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 import org.objectweb.asm.commons.AdviceAdapter
 
 class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
                              private val classContext: ClassContext,
                              private val classVisitor: ClassVisitor
 ): ViewBehaviorHook {
-    override fun onBehaviorBegin(name: String, methodVisitor: MethodVisitor) {
+    override fun onMethodEnter(adapter: AdviceAdapter) {
+
+    }
+
+    override fun onMethodExit(opcode: Int, adapter: AdviceAdapter) {
+        // 对于Touch_Event行为而言，行为方法返回值类型必为boolean，这里无需再通过opcode判断了
         val currentClassName = classContext.currentClassData.className
-        methodVisitor.visitLdcInsn(parameters.viewTag.get())
-        methodVisitor.visitVarInsn(AdviceAdapter.ALOAD, 0)
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKEVIRTUAL,
-            "android/view/View",
+
+        val local = adapter.newLocal(Type.BOOLEAN_TYPE)
+        adapter.storeLocal(local)
+        adapter.visitLdcInsn(parameters.viewTag.get())
+        adapter.visitVarInsn(Opcodes.ALOAD, 0)
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
+            transDescriptorClassName(currentClassName),
             "getTag",
             "()Ljava/lang/Object;",
             false
         )
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKEVIRTUAL,
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             "java/lang/String",
             "equals",
             "(Ljava/lang/Object;)Z",
             false
         )
-        val label1 = Label()
-        methodVisitor.visitJumpInsn(AdviceAdapter.IFEQ, label1)
-        val label2 = Label()
-        methodVisitor.visitLabel(label2)
-        methodVisitor.visitLineNumber(22, label2)
-        methodVisitor.visitLdcInsn(parameters.logTag.get())
-        methodVisitor.visitTypeInsn(AdviceAdapter.NEW, "java/lang/StringBuilder")
-        methodVisitor.visitInsn(AdviceAdapter.DUP)
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKESPECIAL,
+        val label2 = adapter.newLabel()
+        adapter.visitJumpInsn(Opcodes.IFEQ, label2)
+        val label3 = adapter.newLabel()
+        adapter.visitLabel(label3)
+        adapter.visitLdcInsn(parameters.logTag.get())
+        adapter.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder")
+        adapter.dup()
+        adapter.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             "java/lang/StringBuilder",
             "<init>",
             "()V",
             false
         )
-        methodVisitor.visitLdcInsn("${getSimpleClassName(currentClassName)}-${name}-")
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKEVIRTUAL,
+        adapter.visitLdcInsn("${getSimpleClassName(currentClassName)}-${adapter.name}-")
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             "java/lang/StringBuilder",
             "append",
             "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
             false
         )
-        methodVisitor.visitVarInsn(AdviceAdapter.ALOAD, 1)
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKEVIRTUAL,
+        adapter.visitVarInsn(Opcodes.ALOAD, 1)
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             "android/view/MotionEvent",
             "getAction",
             "()I",
             false
         )
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKESTATIC,
+        adapter.visitMethodInsn(
+            Opcodes.INVOKESTATIC,
             "android/view/MotionEvent",
             "actionToString",
             "(I)Ljava/lang/String;",
             false
         )
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKEVIRTUAL,
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             "java/lang/StringBuilder",
             "append",
             "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
             false
         )
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKEVIRTUAL,
+        adapter.visitLdcInsn("-")
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
+            "java/lang/StringBuilder",
+            "append",
+            "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
+            false
+        )
+        adapter.loadLocal(local)
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
+            "java/lang/StringBuilder",
+            "append",
+            "(Z)Ljava/lang/StringBuilder;",
+            false
+        )
+        adapter.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             "java/lang/StringBuilder",
             "toString",
             "()Ljava/lang/String;",
             false
         )
-        methodVisitor.visitMethodInsn(
-            AdviceAdapter.INVOKESTATIC,
+        adapter.visitMethodInsn(
+            Opcodes.INVOKESTATIC,
             "android/util/Log",
             "d",
             "(Ljava/lang/String;Ljava/lang/String;)I",
             false
         )
-        methodVisitor.visitInsn(AdviceAdapter.POP)
-        methodVisitor.visitLabel(label1)
-        methodVisitor.visitLineNumber(24, label1)
-        methodVisitor.visitFrame(AdviceAdapter.F_SAME, 0, null, 0, null)
+        adapter.pop()
+        adapter.visitLabel(label2)
+        adapter.loadLocal(local)
     }
 
-    override fun onBehaviorEnd(name: String, methodVisitor: MethodVisitor) {
-
-    }
-
-    override fun onBehaviorGenerate(name: String) {
+    override fun onMethodGenerate(name: String) {
         // 如果当前类不是ViewGroup的话，不需要生成"onInterceptTouchEvent"方法
         if (!classContext.currentClassData.superClasses.contains("android.view.ViewGroup")
             && name == "onInterceptTouchEvent") {
@@ -117,11 +135,25 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
             null
         )
         methodVisitor.visitCode()
+        val label0 = Label()
+        methodVisitor.visitLabel(label0)
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 1)
+        methodVisitor.visitMethodInsn(
+            Opcodes. INVOKESPECIAL,
+            transDescriptorClassName(parentClassName),
+            name,
+            "(Landroid/view/MotionEvent;)Z",
+            false
+        )
+        methodVisitor.visitVarInsn(Opcodes.ISTORE, 2)
+        val label1 = Label()
+        methodVisitor.visitLabel(label1)
         methodVisitor.visitLdcInsn(parameters.viewTag.get())
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKEVIRTUAL,
-            "android/view/View",
+            transDescriptorClassName(currentClassName),
             "getTag",
             "()Ljava/lang/Object;",
             false
@@ -133,11 +165,10 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
             "(Ljava/lang/Object;)Z",
             false
         )
-        val label0 = Label()
-        methodVisitor.visitJumpInsn(Opcodes.IFEQ, label0)
-        val label1 = Label()
-        methodVisitor.visitLabel(label1)
-        methodVisitor.visitLineNumber(22, label1)
+        val label2 = Label()
+        methodVisitor.visitJumpInsn(Opcodes.IFEQ, label2)
+        val label3 = Label()
+        methodVisitor.visitLabel(label3)
         methodVisitor.visitLdcInsn(parameters.logTag.get())
         methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder")
         methodVisitor.visitInsn(Opcodes.DUP)
@@ -178,6 +209,22 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
             "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
             false
         )
+        methodVisitor.visitLdcInsn("-")
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
+            "java/lang/StringBuilder",
+            "append",
+            "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
+            false
+        )
+        methodVisitor.visitVarInsn(Opcodes.ILOAD, 2)
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
+            "java/lang/StringBuilder",
+            "append",
+            "(Z)Ljava/lang/StringBuilder;",
+            false
+        )
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKEVIRTUAL,
             "java/lang/StringBuilder",
@@ -193,29 +240,18 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
             false
         )
         methodVisitor.visitInsn(Opcodes.POP)
-        methodVisitor.visitLabel(label0)
-        methodVisitor.visitLineNumber(24, label0)
-        methodVisitor.visitLineNumber(21, label0)
-        methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null)
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 1)
-        // 调用父类的方法
-        methodVisitor.visitMethodInsn(
-            Opcodes.INVOKESPECIAL,
-            transDescriptorClassName(parentClassName),
-            name,
-            "(Landroid/view/MotionEvent;)Z",
-            false
-        )
-        methodVisitor.visitInsn(Opcodes.IRETURN)
-        val label2 = Label()
         methodVisitor.visitLabel(label2)
+        methodVisitor.visitFrame(Opcodes.F_APPEND, 1, arrayOf<Any>(Opcodes.INTEGER), 0, null)
+        methodVisitor.visitVarInsn(Opcodes.ILOAD, 2)
+        methodVisitor.visitInsn(Opcodes.IRETURN)
+        val label4 = Label()
+        methodVisitor.visitLabel(label4)
         methodVisitor.visitLocalVariable(
             "this",
             "L${transDescriptorClassName(currentClassName)};",
             null,
             label0,
-            label2,
+            label4,
             0
         )
         methodVisitor.visitLocalVariable(
@@ -223,10 +259,11 @@ class TouchEventBehaviorHook(private val parameters: ViewAnalyzerParameters,
             "Landroid/view/MotionEvent;",
             null,
             label0,
-            label2,
+            label4,
             1
         )
-        methodVisitor.visitMaxs(3, 2)
+        methodVisitor.visitLocalVariable("handled", "Z", null, label1, label4, 2)
+        methodVisitor.visitMaxs(3, 3)
         methodVisitor.visitEnd()
     }
 

@@ -2,7 +2,6 @@ package com.vuj.analyzer;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 
 import androidx.annotation.Nullable;
 public class CustomTextView extends androidx.appcompat.widget.AppCompatTextView {
