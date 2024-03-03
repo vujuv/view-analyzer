@@ -44,16 +44,17 @@ viewAnalyzer {
 
 效果：
 ```text
-vuj                     com.vuj.analyzer                     D  CustomLinearLayout-onInterceptTouchEvent-ACTION_DOWN
-vuj                     com.vuj.analyzer                     D  RecyclerView-onInterceptTouchEvent-ACTION_DOWN
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_DOWN
-vuj                     com.vuj.analyzer                     D  CustomLinearLayout-onInterceptTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  CustomLinearLayout-onInterceptTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE
-vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_UP
+vuj                     com.vuj.analyzer                     D  CustomLinearLayout-onInterceptTouchEvent-ACTION_DOWN-false
+vuj                     com.vuj.analyzer                     D  RecyclerView-onInterceptTouchEvent-ACTION_DOWN-false
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_DOWN-true
+vuj                     com.vuj.analyzer                     D  CustomLinearLayout-onInterceptTouchEvent-ACTION_MOVE-false
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE-true
+vuj                     com.vuj.analyzer                     D  CustomLinearLayout-onInterceptTouchEvent-ACTION_MOVE-false
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE-true
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE-true
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE-true
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE-true
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE-true
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_MOVE-true
+vuj                     com.vuj.analyzer                     D  RecyclerView-onTouchEvent-ACTION_UP-true
 ```
